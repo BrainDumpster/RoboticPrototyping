@@ -1,0 +1,4 @@
+__pycache__/
+# Each student's own files: test logs and load calibrations stay on their laptop.
+logs/
+calibration/

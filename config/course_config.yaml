@@ -1,0 +1,96 @@
+# INF 385T course configuration (Spring 2027).
+#
+# Students: do NOT edit the `ceilings` section, and never set anything in `limits`
+# above its ceiling. The scripts refuse to run if you do. The ceilings (and the provisional
+# twist cap) are also fixed in course_lib/config.py, so raising them here has no effect.
+# Editing this file also makes `git pull` fail later, so pass --port on the command line instead.
+#
+# Lines marked "INSTRUCTOR: set after December pilot" are provisional numbers.
+#
+# Units used below (Feetech STS3215 datasheet values):
+#   torque units  0-1000 = 0-100.0 % of the servo's stall torque (Torque_Limit, Max_Torque_Limit)
+#   current units about 6.5 mA each (Protection_Current)
+#   steps         4096 steps = one full turn, so 1 step is about 0.088 degrees
+#   steps/s       speed; 4096 steps/s = 1 turn per second
+
+hardware:
+  # Your adapter's USB port, e.g. /dev/tty.usbmodem58760431551 (Mac) or COM5 (Windows).
+  # Find it with `lerobot-find-port`. Leave this null and pass --port on the command line
+  # (editing this file blocks git pull).
+  port: null
+  model: sts3215
+  model_number: 777          # what an STS3215 reports in its Model_Number register
+  # SO-101 follower motor IDs (same as LeRobot's so101_follower).
+  motor_ids:
+    shoulder_pan: 1
+    shoulder_lift: 2
+    elbow_flex: 3
+    wrist_flex: 4
+    wrist_roll: 5
+    gripper: 6
+  # The Feb 22 servo is your future gripper, alone on the bus.
+  single_servo_name: gripper
+  single_servo_id: 1         # factory ID; it becomes 6 after lerobot-setup-motors
+
+# Hard ceilings. INSTRUCTOR ONLY. No script will use a value above these. They must match
+# INSTRUCTOR_CEILINGS in course_lib/config.py (a value here above that is refused).
+ceilings:
+  torque_limit: 500          # torque units (50 %). Runtime Torque_Limit. INSTRUCTOR: set after December pilot
+  max_torque_limit: 500      # torque units. Power-on Max_Torque_Limit (LeRobot uses 500 for the gripper)
+  protection_current: 250    # current units (about 1.6 A). LeRobot uses 250 for the gripper
+  overload_torque: 25        # % (36). See the note on the overload settings below
+  protective_torque: 20      # % (34). INSTRUCTOR: set after December pilot
+  protection_time: 200       # x10 ms (35). INSTRUCTOR: set after December pilot
+  max_temperature_c: 60      # deg C. Syllabus rule: abort above 60 deg C. Never raise this.
+  drive_time_s: 90           # seconds. Longest any single powered drive may last
+  wheel_speed: 2400          # steps/s (about 0.6 turn/s) in wheel mode. INSTRUCTOR: set after December pilot
+  move_speed: 300            # steps/s (about 26 deg/s) for position moves
+  move_steps: 400            # steps (about 35 deg). Largest commissioning test move
+  acceleration: 50           # 1-254, lower = gentler ramp. 0 means NO ramp, so it is never allowed
+
+# Values the scripts use by default. Each one must be at or below its ceiling.
+limits:
+  torque_limit: 150          # torque units (15 %). The provisional twist cap until your load
+                             # calibration exists (also fixed in course_lib/config.py as
+                             # PROVISIONAL_TORQUE_LIMIT). INSTRUCTOR: set after December pilot
+  max_torque_limit: 500      # torque units, written to every servo's EEPROM
+  protection_current: 250    # current units
+  overload_torque: 25        # %
+  protective_torque: 20      # %
+  protection_time: 200       # x10 ms
+  max_temperature_c: 60      # deg C. Scripts abort above this and also write it to the servo
+  drive_time_s: 60           # seconds. Screw-test time limit. An M3 thread advances 0.5 mm per turn,
+                             # so a 10 mm screw needs 20 turns. INSTRUCTOR: set after December pilot
+  wheel_speed: 1200          # steps/s (about 0.3 turn/s) screw approach speed. INSTRUCTOR: set after December pilot
+  move_speed: 150            # steps/s (about 13 deg/s) commissioning move speed
+  move_steps: 200            # steps (about 18 deg) commissioning move size
+  acceleration: 10           # gentle ramp for every move
+
+# Overload settings (written to every servo and read back). The Feetech manual is ambiguous about
+# which of Overload_Torque (36) and Protective_Torque (34) is the trip threshold and which is the
+# torque held after a trip; Protection_Time (35) is how long the overload must last before it trips.
+# Lower is more protective for all three. The scripts also write Unloading_Condition (19) so the
+# servo cuts torque on its own overheat/overcurrent/overload alarms (course_lib/safety.py).
+# INSTRUCTOR: confirm all four on the drive stand in the December pilot.
+
+# Screw-test stop detection (not safety ceilings, but leave them unless the TA says otherwise).
+# sample_period_s may be at most 0.1, and grace_s + stall_time_s must be shorter than drive_time_s.
+screw:
+  stall_velocity: 20         # steps/s. Slower than this counts as "not turning"
+  stall_time_s: 0.3          # seconds the servo must stay "not turning" before the test stops
+  grace_s: 0.5               # seconds after start before stall detection begins (spin-up time)
+  seated_fraction: 0.8       # a stall at or above 80 % of your twist limit counts as "seated"
+  sample_period_s: 0.02      # seconds between readings (50 per second)
+
+# Acceptable supply voltage at the servo, for the 7.5 V 6 A course supply. INSTRUCTOR: set after December pilot
+voltage:
+  min_v: 7.0
+  max_v: 8.0
+
+# Commissioning: how close (in steps) the joint must get to its target to count as "arrived".
+position_tolerance: 15
+
+# Suggested value for LeRobot's SO-101 `max_relative_target` when you teleoperate later in the term:
+# the most a joint may be asked to move in one control step (degrees). INSTRUCTOR: set after December pilot
+teleop:
+  max_relative_target: 10

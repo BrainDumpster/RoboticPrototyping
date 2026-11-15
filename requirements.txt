@@ -1,0 +1,13 @@
+# INF 385T course environment. Needs Python 3.12 (3.13 also works; 3.11 and older will NOT work).
+# Install with:  pip install -r requirements.txt
+# Then check with:  python scripts/check_install.py   (it should print "install OK")
+#
+# LeRobot pulls in PyTorch, a large download. Intel Macs have no PyTorch wheel for these
+# versions, so if you have an Intel Mac, talk to the TA before installing.
+
+# LeRobot 0.7.0 with the Feetech servo driver (rustypot + pyserial) and the extras lerobot-calibrate needs.
+lerobot[feetech,hardware]==0.7.0
+rustypot==1.13.1
+
+# Reads config/course_config.yaml.
+pyyaml==6.0.3

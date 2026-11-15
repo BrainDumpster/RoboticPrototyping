@@ -77,4 +77,4 @@ Claude Code reads this README and the scripts when you ask it for help. You are 
 
 ## Getting help
 
-Ask Eric or the TA. Contact details are in the syllabus. Help-session times are posted in Canvas.
+Ask me or the TA. Contact details are in the syllabus. Help-session times are posted in Canvas.
